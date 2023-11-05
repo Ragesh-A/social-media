@@ -7,8 +7,8 @@ import {
 
 const router = Router()
 
-router.post('login', loginController);
-router.post('signup', signupController);
-router.patch('password', resetPasswordController)
+router.post('/login', loginController);
+router.post('/signup', signupController);
+router.patch('/password', resetPasswordController)
 
 export default router;

@@ -5,6 +5,9 @@ import cors from 'cors'
 import Path from 'path'
 
 import indexRoute from './src/routes/index'
+import { globalErrorHandle } from './src/helper/errorHandle';
+import { notFound } from './src/helper/notFound';
+import { connectDb } from './src/config/db';
 
 dotenv.config();
 //log
@@ -20,13 +23,14 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(Path.join(__dirname, 'public')))
 
 app.use('/api', indexRoute)
-// app.use(not found)
-// app.use(error handle)
+app.use('*', notFound)
+app.use(globalErrorHandle)
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server');
-});
+connectDb().then(() => {
+  app.listen(port, () => {
+    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+  });
+}).catch(error => {
+  console.log(error); 
+})
 
-app.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
-});
