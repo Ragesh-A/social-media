@@ -17,6 +17,7 @@ const registrationSchema = Joi.object({
     'string.empty': 'Password is required',
   })
 })
+
 const loginSchema = Joi.object({
   email: Joi.string().trim().required().email().messages({
     'string.base': 'Email must be string',
@@ -31,4 +32,23 @@ const loginSchema = Joi.object({
   })
 })
 
-export {registrationSchema, loginSchema}
+const resetPasswordSchema = Joi.object({
+  email: Joi.string().trim().required().email().messages({
+    'string.base': 'Email must be string',
+    'string.empty': 'Email is required',
+    'string.min': 'Email must be at least {#limit} character',
+    'string.max': 'Email must not exceed {#limit} character',
+  }),
+  password: Joi.string().trim().required().min(5).messages({
+    'string.base': 'Password must be string',
+    'string.min': 'Password must be at least {#limit} character',
+    'string.empty': 'Password is required',
+  }),
+   otp: Joi.number().required().messages({
+     'string.base': 'OTP must be string',
+     'string.empty': 'OTP is required',
+  }),
+})
+
+
+export {registrationSchema, loginSchema, resetPasswordSchema}

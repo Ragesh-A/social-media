@@ -9,4 +9,14 @@ interface ILogin {
   password: string;
 }
 
-export { IRegister, ILogin };
+interface IResetPassword {
+  email: string;
+  password: string;
+  otp: number;
+}
+
+export {
+  IRegister,
+  ILogin,
+  IResetPassword
+};

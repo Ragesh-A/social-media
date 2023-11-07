@@ -1,13 +1,13 @@
 import { Schema, model, connect } from 'mongoose';
 
-interface IUser {
+export interface IUser {
   name: string;
   email: string;
   password: string;
   avatar: string;
   isBlocked: boolean;
   isVerified: boolean;
-  isAdmin: boolean;
+  role: string;
 }
 
 const userSchema = new Schema<IUser>({
@@ -44,9 +44,11 @@ const userSchema = new Schema<IUser>({
     type: Boolean,
     default: false,
   },
-  isAdmin: {
-    type: Boolean,
-    default: false,
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    required: true,
+    default: 'user'
   }
 }, { timestamps: true })
 
