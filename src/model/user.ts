@@ -5,6 +5,7 @@ export interface IUser {
   email: string;
   password: string;
   avatar: string;
+  backgroundImg: string;
   isBlocked: boolean;
   isVerified: boolean;
   role: string;
@@ -33,7 +34,11 @@ const userSchema = new Schema<IUser>({
   avatar: {
     type: String,
     required: true,
-    default: 'user.png',
+    trim: true
+  },
+  backgroundImg: {
+    type: String,
+    required: true,
     trim: true
   },
   isBlocked: {
