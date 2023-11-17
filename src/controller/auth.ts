@@ -14,7 +14,7 @@ const loginController = catchAsync(async (req: Request, res: Response, next: Nex
   if (error) return next(error);
   const user = await loginUser(value.email, value.password);
   const {_id} = user
-  const token = await generateToken({id: _id})
+  const token = await generateToken({id: _id, role: user.role})
   res.status(200).json({
     success: true,
     message: 'Login success',

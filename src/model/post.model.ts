@@ -1,14 +1,18 @@
-import { boolean } from "joi";
-import mongoose, {Schema, ObjectId, model} from "mongoose";
+import mongoose, { Schema, ObjectId, model } from "mongoose";
+import { IUser } from "./user";
+import { ISubCategory } from "./category.model";
+import { IComment } from "./comment.model";
 
-export interface IPost{
-  creator: ObjectId;
-  likes: ObjectId;
+export interface IPost {
+  creator: IUser;
   caption: string;
-  tags: string[];
   isImage: boolean;
   url: string;
+  likes: IUser[];
+  tags: ISubCategory[];
+  comments: IComment;
   location: string;
+  views: ObjectId[]
 }
 
 const postSchema = new Schema<IPost>({
@@ -17,18 +21,23 @@ const postSchema = new Schema<IPost>({
     required: true,
     ref: 'User'
   },
-  likes: {
+  likes: [{
     type: mongoose.Types.ObjectId,
-    required: true,
     ref: 'User'
-  },
+  }],
   caption: {
     type: String,
     required: true,
   },
-  tags: {
-    type: [String],
-  },
+  tags: [{
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'SubCategory'
+  }],
+  views: [{
+    type: mongoose.Types.ObjectId,
+    ref: 'User'
+  }],
   isImage: {
     type: Boolean,
     required: true,
@@ -43,7 +52,10 @@ const postSchema = new Schema<IPost>({
     type: String,
     trim: true,
   },
+  comments: {
+    type: mongoose.Types.ObjectId,
+    ref: 'Comment'
+  }
 }, { timestamps: true })
 
 export default model<IPost>('Post', postSchema);
- 

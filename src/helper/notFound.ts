@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
 
 export const notFound = async (req:Request, res:Response) => {
-  res.json({ success: false, message: 'failed to find the path'})
+  res.status(404).json({ success: false, message: 'failed to find the path'})
 }
