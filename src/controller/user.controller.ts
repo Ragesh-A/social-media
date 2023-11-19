@@ -4,6 +4,8 @@ import { LoggedUserRequest } from "../types/request";
 import { findUser, userService } from "../service/user.service";
 import searchSchema, { ISearchQuery } from "../helper/validator/schema/serach";
 import { ValidationError } from "joi";
+import { uploadToCloud } from "../libs/cloudnary";
+import { unlink } from "fs";
 
 const getProfile = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId = req.userId;
@@ -21,8 +23,21 @@ const getProfile = catchAsync(async (req: LoggedUserRequest, res: Response) => {
 const updateProfile = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId = req.userId || '';
   const { bio, name }: { bio: string, name: string } = req.body;
-  const updatedUser = await userService.updateUser(userId, name, bio);
-  console.log(updatedUser);
+
+  const { avatar, background }: any = req.files;
+
+  let avatarRes: any;
+  let backgroundRes:any
+  if (avatar) {
+    avatarRes = await uploadToCloud(avatar[0].path)
+    unlink(avatar[0].path, ()=>{})
+  }
+  if (background) {
+    backgroundRes = await uploadToCloud(background[0].path)
+    unlink(background[0].path, ()=>{})
+  }
+  
+  const updatedUser = await userService.updateUser(userId, name, bio, avatarRes?.url, backgroundRes?.url);
   
   res.status(200).json({
     success: true,

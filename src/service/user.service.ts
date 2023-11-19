@@ -2,8 +2,8 @@ import User from "../model/user"
 
 const findUser = async (_id: string) => User.findOne({ _id })
 
-const updateUser = async (_id:string, name: string, bio:string) => {
-  return User.findOneAndUpdate({ _id }, { name, bio }, { upsert: true, new: true });
+const updateUser = async (_id:string, name: string, bio:string, avatar:string, backgroundImg:string) => {
+  return User.findOneAndUpdate({ _id }, { name, bio, avatar, backgroundImg  }, { upsert: true, new: true });
 } 
 
 const findAllUsers = async ({ q, orderBy, page, role }: {
