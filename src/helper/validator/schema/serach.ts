@@ -10,7 +10,7 @@ export interface ISearchQuery{
 
 const searchSchema = Joi.object<ISearchQuery>({
   page: Joi.number(),
-  q: Joi.string(),
+  q: Joi.string().min(0),
   role: Joi.string(),
   orderBy: Joi.string(),
 })

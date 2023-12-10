@@ -20,14 +20,15 @@ const getMyPosts = catchAsync(async (req: LoggedUserRequest, res: Response) => {
 
 const createPost = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const { value, error }
-    : { error: ValidationError | undefined, value: IPost | any } = postSchema.validate(req.body);  
+    : { error: ValidationError | undefined, value: IPost | any } = postSchema.validate(req.body);
   if (error) throw new Error(`${error}`)
   if (error) throw new Error(JSON.stringify(error));
   if (!req.file) throw new Error('no file is uploaded');
 
   const cloudinaryRes: { url: string } = await uploadToCloud(req.file.path);
-  
-  unlink(req.file.path, () => {});
+
+  unlink(req.file.path, () => { });
+  console.log(value.tags);
 
   const post = await postService.createPost(
     cloudinaryRes.url,
@@ -54,7 +55,7 @@ const getPost = catchAsync(async (req: Request, res: Response, next: NextFunctio
 
 const getFilteredPost = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   let q = req.query.q || ''
-  const page = req.query.page || 0
+  const page = req.query.page || 1
   let type = req.query.type || ''
 
   if (Array.isArray(q)) {
@@ -86,7 +87,7 @@ const createComment = catchAsync(async (req: LoggedUserRequest, res: Response, n
   const postId = req.params.postId;
   const userId = req.userId || ''
   const { comment }: { comment: string } = req.body;
-  const newComment = await postService.createNewComment(postId,userId, comment)
+  const newComment = await postService.createNewComment(postId, userId, comment)
   res.status(200).json({
     success: true,
     data: newComment
@@ -103,6 +104,68 @@ const getComments = catchAsync(async (req: LoggedUserRequest, res: Response, nex
   })
 })
 
+
+const getUserPostsById = catchAsync(async (req: LoggedUserRequest, res: Response) => {
+  const userId: string = req.params.userId;
+  const posts = await postService.userPostsById(userId)
+
+  res.status(200).json({
+    success: true,
+    data: posts
+  })
+})
+
+const mySavedPosts = catchAsync(async (req: LoggedUserRequest, res: Response) => {
+  const userId: string = req.userId || ''
+  const page = req.query.page || 1
+  if (!userId) throw new Error('Failed to identify user')
+  const posts = await postService.savedPosts(userId, Number(page))
+
+  res.status(200).json({
+    success: true,
+    data: posts
+  })
+})
+
+const addIntoSavedPost = catchAsync(async (req: LoggedUserRequest, res: Response) => {
+  const userId = req.userId
+  if (!userId) throw new Error('Failed to identify user')
+  const postId = req.params.postId;
+  if (!postId) throw new Error('No post id found')
+
+  const savedPost = await postService.saveIntoSavedPost(userId, postId)
+
+  res.status(200).json({
+    success: true,
+    data: savedPost
+  })
+})
+const deleteFromSavedPost = catchAsync(async (req: LoggedUserRequest, res: Response) => {
+  const userId = req.userId
+  if (!userId) throw new Error('Failed to identify user')
+  const postId = req.params.postId;
+  if (!postId) throw new Error('No post id found')
+
+  const savedPost = await postService.deleteFromSavedPost(userId, postId)
+
+  res.status(200).json({
+    success: true,
+    data: savedPost
+  })
+})
+
+
+const myLikedPosts = catchAsync(async (req: LoggedUserRequest, res: Response) => {
+  const userId: string = req.userId || ''
+  if (!userId) throw new Error('Failed to identify user')
+  const posts = await postService.likedPosts(userId)
+
+  res.status(200).json({
+    success: true,
+    data: posts
+  })
+})
+
 export {
   getMyPosts,
   createPost,
@@ -111,4 +174,9 @@ export {
   getPost,
   createComment,
   getComments,
+  getUserPostsById,
+  mySavedPosts,
+  myLikedPosts,
+  addIntoSavedPost,
+  deleteFromSavedPost,
 }

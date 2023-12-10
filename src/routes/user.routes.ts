@@ -1,11 +1,15 @@
 import { Router } from "express";
 import { adminMiddleWare } from "../middleware";
-import { getAllUsers, getUser } from "../controller/user.controller";
+import { getAllUsers, getUser, handleBlockUser } from "../controller/user.controller";
+import { getUserPostsById } from "../controller/post.controller";
 
 const router = Router()
 
-router.use(adminMiddleWare)
+
 router.get('', getAllUsers)
-router.get('/:userId', getUser)
+router.route('/:userId')
+  .get(getUser)
+  .patch(adminMiddleWare, handleBlockUser)
+router.get('/:userId/posts', getUserPostsById)
 
 export default router;

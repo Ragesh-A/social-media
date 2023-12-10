@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export interface ISaves{
   user: mongoose.Types.ObjectId,
-  posts: mongoose.Types.ObjectId[]
+  post: mongoose.Types.ObjectId[]
 }
 
 const saveSchema = new mongoose.Schema({
@@ -11,10 +11,10 @@ const saveSchema = new mongoose.Schema({
     required: true,
     ref: 'User'
   },
-  posts: {
+  post: {
     type: mongoose.Types.ObjectId,
     required: true,
-    ref: 'User'
+    ref: 'Post'
   }
 })
 

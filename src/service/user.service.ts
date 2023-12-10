@@ -1,17 +1,38 @@
-import User from "../model/user"
+import User, { followers } from "../model/user"
 
-const findUser = async (_id: string) => User.findOne({ _id })
+const findUser = async (_id: string, userId: string) => {
+  const user = await User.findOne({ _id })
+    .select('+isBlocked +isVerified +role')
+  if (!user) throw new Error('no user found')
+  console.log(_id);
 
-const updateUser = async (_id:string, name: string, bio:string, avatar:string, backgroundImg:string) => {
-  return User.findOneAndUpdate({ _id }, { name, bio, avatar, backgroundImg  }, { upsert: true, new: true });
-} 
+  let isFollowing = userId ? await followers.findOne({ user: _id, follower: userId }) : false
+  const followersCountPromise = followers.find({ follower: _id }).countDocuments()
+  const followingCountPromise = followers.find({ user: _id }).countDocuments()
 
-const findAllUsers = async ({ q, orderBy, page, role }: {
+  const [followersCount, followingCount] =
+    await Promise.all([followersCountPromise, followingCountPromise]);
+
+  return {
+    profile: user,
+    isFollowing,
+    followersCount,
+    followingCount
+  }
+}
+
+const updateUser = async (_id: string, name: string, bio: string, avatar: string, backgroundImg: string) => {
+  return User.findOneAndUpdate({ _id }, { name, bio, avatar, backgroundImg }, { upsert: true, new: true });
+}
+
+const findAllUsers = async ({ orderBy, page, role = 'user', q = '' }: {
   q: any,
   orderBy: 'asc' | 'desc',
   page: string | number,
-  role: string
-}
+  role: string,
+},
+  userId: string,
+  userRole = 'user'
 ) => {
 
   let skip = Number(page) || 1
@@ -20,15 +41,63 @@ const findAllUsers = async ({ q, orderBy, page, role }: {
 
   const users = await User.find({
     role,
-    $or: [{ name: search }, { email: search }]
+    $and: [
+      { $or: [{ name: search }, { email: search }] },
+      { _id: { $ne: userId } }
+    ]
   })
-    .sort({ createdAt: sort})
+    .sort({ createdAt: sort })
     .limit(20)
-    .skip(--skip * 20)
-  
+    .skip(--skip * 20).select(`+isBlocked ${userRole === 'admin' ? '+email' : ''}`)
+
   return users
 }
 
-export const userService = { findAllUsers, updateUser }
+const blockUser = async (userId: string, type: string) => {
+  let value = true;
+  if (type === 'BLOCK') {
+    value = true
+  }
+  else if (type === 'UN_BLOCK') {
+    value = false
+  }
+  else throw new Error("Invalid action")
+
+  const _user = await User.findOneAndUpdate({ _id: userId }, { $set: { isBlocked: value } }, { new: true });
+  if (!_user) throw new Error('No such user exists');
+  return _user;
+
+}
+
+const userFollowers = async (userId: string) => {
+  return await followers.find({ user: userId })
+    .sort({ 'follower.name': 1 })
+    .skip(0).limit(20).populate('follower')
+}
+
+const handleFollow = async (user: string, follower: string) => {
+  const isCreated = await followers.findOne({ user, follower })
+  if (isCreated) {
+    const d = await followers.deleteOne({ user, follower })
+    return d
+  } else {
+    return new followers({ user, follower }).save()
+  }
+}
+
+const userFollowings = async (userId: string) => {
+  return await followers.find({ follower: userId })
+    .sort({ 'follower.name': 1 })
+    .skip(0).limit(20).populate('follower')
+}
+
+export const userService = {
+  findAllUsers,
+  updateUser,
+  blockUser,
+  userFollowers,
+  userFollowings,
+  handleFollow
+}
 
 export { findUser }

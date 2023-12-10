@@ -6,6 +6,7 @@ export interface ICategory {
   image: string,
   _id: string;
   createdBy: string | IUser;
+  isListed: boolean;
 }
 
 export interface ISubCategory extends ICategory {
@@ -25,8 +26,10 @@ const categorySchema = new Schema<ICategory>({
   createdBy: {
     type: mongoose.Types.ObjectId,
     ref: 'User',
-    required: true
-  }
+    required: true,
+    select: false
+  },
+  isListed: { type: Boolean, default: true, select: false }
 })
 
 const subCategorySchema = new Schema<ISubCategory>({
@@ -42,15 +45,17 @@ const subCategorySchema = new Schema<ISubCategory>({
   createdBy: {
     type: mongoose.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    select: false
   },
   category: {
     type: mongoose.Types.ObjectId,
     ref: 'Category',
     required: true
-  }
+  },
+  isListed: { type: Boolean, default: true, select: false }
 
-}, { timestamps: true})
+}, { timestamps: true })
 
 export const CategoryModel = model<ICategory>('Category', categorySchema);
 export const SubCategoryModel = model<ISubCategory>('SubCategory', subCategorySchema);

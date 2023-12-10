@@ -9,6 +9,7 @@ export interface IPost {
   isImage: boolean;
   url: string;
   likes: IUser[];
+  saved: IUser[];
   tags: ISubCategory[];
   comments: IComment;
   location: string;
@@ -25,6 +26,10 @@ const postSchema = new Schema<IPost>({
     type: mongoose.Types.ObjectId,
     ref: 'User'
   }],
+  saved: [{
+    type: mongoose.Types.ObjectId,
+    ref: 'User'
+  }],
   caption: {
     type: String,
     required: true,
@@ -32,7 +37,6 @@ const postSchema = new Schema<IPost>({
   tags: [{
     type: mongoose.Types.ObjectId,
     required: true,
-    ref: 'SubCategory'
   }],
   views: [{
     type: mongoose.Types.ObjectId,
