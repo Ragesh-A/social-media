@@ -24,6 +24,10 @@ export const addWaterMark = async (req: Request, res: Response, next: NextFuncti
 
   try {
     if (!req.file) throw new Error('no file found');
+    if (req.file.mimetype.includes('video')) {
+      return next()
+    }
+
     const logo = path.resolve('public/white-logo-text.png');
     const logoBuffer = await sharp(logo)
       .toBuffer()
@@ -34,15 +38,12 @@ export const addWaterMark = async (req: Request, res: Response, next: NextFuncti
         top: 50,
         left: 50
       }])
-      .toFormat('webp', { palette: true })
       .toBuffer()
 
     await sharp(watermarkedBuffer).toFile(req.file.path);
     next()
 
   } catch (error: any) {
-    console.log('error', error);
-    
     res.json({ success: false, message: error.message });
   }
 }

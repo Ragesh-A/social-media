@@ -86,7 +86,8 @@ const handleBlockUser = catchAsync(async (req: LoggedUserRequest, res: Response)
 
 const myFollowers = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId: string = req.userId || '';
-  const followers = await userService.userFollowers(userId)
+  const page = req.query.page
+  const followers = await userService.userFollowers(userId, Number(page))
 
   res.status(200).json({
     success: true,
@@ -108,7 +109,8 @@ const followUser = catchAsync(async (req: LoggedUserRequest, res: Response) => {
 
 const myFollowings = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId: string = req.userId || '';
-  const followings = await userService.userFollowings(userId)
+  const page = req.query.page
+  const followings = await userService.userFollowings(userId, Number(page))
 
   res.status(200).json({
     success: true,

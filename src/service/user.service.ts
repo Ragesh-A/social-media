@@ -69,10 +69,11 @@ const blockUser = async (userId: string, type: string) => {
 
 }
 
-const userFollowers = async (userId: string) => {
-  return await followers.find({ user: userId })
+const userFollowers = async (userId: string, page = 1) => {
+  const skip = ((--page > 0 ? page : 0) * 10);
+  return await followers.find({ follower: userId })
     .sort({ 'follower.name': 1 })
-    .skip(0).limit(20).populate('follower')
+    .skip(skip).limit(10).populate('user')
 }
 
 const handleFollow = async (user: string, follower: string) => {
@@ -85,10 +86,11 @@ const handleFollow = async (user: string, follower: string) => {
   }
 }
 
-const userFollowings = async (userId: string) => {
-  return await followers.find({ follower: userId })
-    .sort({ 'follower.name': 1 })
-    .skip(0).limit(20).populate('follower')
+const userFollowings = async (userId: string, page = 1) => {
+  const skip = ((--page > 0 ? page : 0) * 10);
+  return await followers.find({ user: userId })
+    .sort({ 'user.name': 1 })
+    .skip(skip).limit(20).populate('follower')
 }
 
 export const userService = {

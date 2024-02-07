@@ -36,6 +36,7 @@ const postSchema = new Schema<IPost>({
   },
   tags: [{
     type: mongoose.Types.ObjectId,
+    ref: 'SubCategory',
     required: true,
   }],
   views: [{

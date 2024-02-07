@@ -30,31 +30,37 @@ const createPost = async (
 }
 
 const getFilteredPost = async (type: string | any, page: number = 1, q: any = '') => {
-  let result;
+  const limit = 10;
   if (typeof page !== 'number') page = 1
   const search = { $regex: q, $options: 'i' }
-  const skip = ((--page > 0 ? page : 0) * 10);
+  const skip = ((--page > 0 ? page : 0) * limit);
+  const commonOptions = {
+    skip,
+    limit,
+    populate: [
+      { path: 'tags', select: 'name _id' },
+      { path: 'creator', select: ['name', '_id', 'avatar'] }
+    ]
+  };
 
   switch (type) {
     case 'latest':
-      result = await PostModel.find().sort({ createdAt: -1 }).skip(skip)
-        .limit(10).populate('tags').populate('creator');
-      break;
-    case 'trending': result = await PostModel.find().sort({ likes: -1 }).skip(skip).limit(10).populate('tags').populate('creator');
-      break;
-    case 'search': result = await PostModel.find(
+      return await PostModel.find().sort({ createdAt: -1 }).setOptions(commonOptions)
+    case 'trending':
+      return await PostModel.find().sort({ likes: -1 }).setOptions(commonOptions)
+    case 'search':
+      return await PostModel.find(
       {
         $or: [
           { caption: search },
           { 'tags': { $in: await SubCategoryModel.find({ name: search, isListed: true }).distinct('_id') } }
         ]
-      }).sort({ likes: 1 }).populate('tags').skip(skip).limit(10)
-      ; break;
-    default: result = await PostModel.find().sort({ createdAt: 1 })
-      .skip(skip).limit(10).populate('tags').populate('creator');
-      break;
+      }).sort({ likes: 1 })
+      .setOptions(commonOptions)
+    
+    default:
+      return PostModel.find().sort({ createdAt: 1 }).setOptions(commonOptions)
   }
-  return result;
 }
 
 const getPost = async (postId: string) => {
