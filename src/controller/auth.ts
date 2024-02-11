@@ -28,7 +28,7 @@ const signupController = catchAsync(async (req: Request, res: Response, next: Ne
   } = registrationSchema.validate(req.body);
   if (error) return next(error)
   const user = await registerUser(value.name, value.email, value.password)
-  if (!user) throw new Error('No such user');
+  if (!user) throw { status: 400, message: 'No such user' };
 
   res.status(201).json({
     success: true,

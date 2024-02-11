@@ -32,7 +32,7 @@ const createCategory = async (
   { name, image }: { name: string, image: string },
   createdBy: string) => {
   const _existing = await CategoryModel.findOne({ name });
-  if (_existing) throw new Error(`${name} category already exist`);
+  if (_existing) throw { message: `${name} category already exist`, status: 400 };
 
   const category = new CategoryModel({
     name, image, createdBy
@@ -45,7 +45,7 @@ const findCategory = async (_id: string) => {
   const _categoryPromise = CategoryModel.findOne({ _id }).populate('createdBy')
   const _subcategoryPromise = SubCategoryModel.find({ 'category': _id });
   const [category, subCategory] = await Promise.all([_categoryPromise, _subcategoryPromise]);
-  if (!category) throw new Error('no such category ');
+  if (!category) throw { message: 'no such category ', status: 400 };
 
   return { category, subCategory }
 }
@@ -56,7 +56,7 @@ const createSubCategory = async (
   category: string,
   createdBy: string) => {
   const _existing = await SubCategoryModel.findOne({ category, name });
-  if (_existing) throw new Error(`${name} sub-category already exist`);
+  if (_existing) throw { message: `${name} sub-category already exist`, status: 400 };
 
   const _category = new SubCategoryModel({
     name, image, createdBy, category

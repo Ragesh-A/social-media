@@ -13,7 +13,7 @@ const createCategory = catchAsync(async (req: LoggedUserRequest, res: Response, 
       value: ICategory
     } = categorySchema.validate(req.body);
   const userId = req.userId;
-  if(!userId) throw new Error('user not found')
+  if(!userId) throw { status: 400, message: 'User not found' }
   if (error) return next(error)
   const category = await categoryService.createCategory(value, userId);
   
@@ -58,7 +58,7 @@ const createSubCategory = catchAsync(async (req: LoggedUserRequest, res: Respons
   const userId = req.userId ||''
   const { error, value }
   : {error: ValidationError | undefined, value: ICategory}  = categorySchema.validate(req.body);
-  if (error) throw new Error(JSON.stringify(error));
+  if (error) throw { status: 400, message: error };
   const subCategory = await categoryService.createSubCategory({name: value.name, image: value.image}, categoryId, userId)
   
   res.status(201).json({

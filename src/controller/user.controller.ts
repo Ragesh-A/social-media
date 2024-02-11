@@ -9,7 +9,7 @@ import { unlink } from "fs";
 
 const getProfile = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId = req.userId;
-  if (!userId) throw new Error('failed to fetch user');
+  if (!userId) throw { message:'failed to fetch user', status: 403 };
 
   const user = await findUser(userId, '');
 
@@ -53,7 +53,7 @@ const getAllUsers = catchAsync(async (req: LoggedUserRequest, res: Response) => 
       error: ValidationError | undefined;
       value: ISearchQuery
     } = searchSchema.validate(req.query);
-  if (error) throw new Error(`${error}`);
+  if (error) throw { message:error, status: 400 };
   const users = await userService.findAllUsers(value, userId, role)
   res.status(200).json({
     success: true,
@@ -75,7 +75,7 @@ const getUser = catchAsync(async (req: LoggedUserRequest, res: Response) => {
 const handleBlockUser = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId: string = req.params.userId;
   const action = req.body.action;
-  if (!action) throw new Error('Invalid action')
+  if (!action) throw { message:'Invalid action', status: 400 }
   const user = await userService.blockUser(userId, action)
 
   res.status(200).json({
@@ -98,7 +98,7 @@ const myFollowers = catchAsync(async (req: LoggedUserRequest, res: Response) => 
 const followUser = catchAsync(async (req: LoggedUserRequest, res: Response) => {
   const userId: string = req.userId || '';
   const follower: string = req.body.user;
-  if (!follower) throw new Error('no data')
+  if (!follower) throw { message:'no data', status: 400 }
   const followers = await userService.handleFollow(userId, follower)
 
   res.status(200).json({

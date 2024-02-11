@@ -3,7 +3,7 @@ import User, { followers } from "../model/user"
 const findUser = async (_id: string, userId: string) => {
   const user = await User.findOne({ _id })
     .select('+isBlocked +isVerified +role')
-  if (!user) throw new Error('no user found')
+  if (!user) throw { message: 'no user found', status: 400 }
   console.log(_id);
 
   let isFollowing = userId ? await followers.findOne({ user: _id, follower: userId }) : false
@@ -61,10 +61,10 @@ const blockUser = async (userId: string, type: string) => {
   else if (type === 'UN_BLOCK') {
     value = false
   }
-  else throw new Error("Invalid action")
+  else throw { message: "Invalid action", status: 400 }
 
   const _user = await User.findOneAndUpdate({ _id: userId }, { $set: { isBlocked: value } }, { new: true });
-  if (!_user) throw new Error('No such user exists');
+  if (!_user) throw { message: 'No such user exists', status: 400 };
   return _user;
 
 }

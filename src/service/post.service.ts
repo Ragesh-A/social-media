@@ -65,7 +65,7 @@ const getFilteredPost = async (type: string | any, page: number = 1, q: any = ''
 
 const getPost = async (postId: string) => {
   const post = await PostModel.findOne({ _id: postId }).populate('creator');
-  if (!post) throw new Error('No such post');
+  if (!post) throw { message: 'No such post', status: 400 };
   return post;
 }
 

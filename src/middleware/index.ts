@@ -4,7 +4,7 @@ import { verifyToken } from "../libs/jwt";
 
 const requireSignIn = catchAsync(async (req: any, res: Response, next: NextFunction) => {
   const token = req.headers.authorization
-  if (!token) throw new Error('Unauthorized');
+  if (!token) throw { message:'Unauthorized', status: 403 };
   const payload: any = await verifyToken(token);
   req.userId = payload.id
   req.role = payload.role;
@@ -14,7 +14,7 @@ const requireSignIn = catchAsync(async (req: any, res: Response, next: NextFunct
 
 const adminMiddleWare = catchAsync(async (req: any, res: Response, next: NextFunction) => {
   if (req.role !== 'admin') {
-    throw new Error('Unauthorized');
+    throw { message:'Unauthorized', status: 403 };
   }
   next()
 })
